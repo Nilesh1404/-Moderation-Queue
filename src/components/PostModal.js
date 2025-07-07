@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { approvePost, rejectPost, setPending } from '../features/postsSlice.js';
-import { HiUser, HiClock, HiFlag, HiDocumentText, HiPhotograph, HiCheckCircle, HiXCircle, HiRefresh } from 'react-icons/hi';
+import { HiUser, HiClock, HiFlag, HiDocumentText, HiCheckCircle, HiXCircle, HiRefresh } from 'react-icons/hi';
 
 const statusBg = {
   pending: 'bg-gradient-to-r from-sky-50 to-blue-100',

@@ -8,34 +8,31 @@ import EmptyState from './EmptyState.js';
 import Snackbar from './Snackbar.js';
 import { approvePost, rejectPost, setLoading, setPending } from '../features/postsSlice.js';
 
-const POSTS_PER_PAGE = 10;
-
 const PostList = () => {
   const posts = useSelector(state => state.posts.posts);
   const loading = useSelector(state => state.posts.loading);
   const dispatch = useDispatch();
-  const [modalPost, setModalPost] = useState(null);
   const [selected, setSelected] = useState([]);
-  const [status, setStatus] = useState('pending');
   const [snackbar, setSnackbar] = useState({ open: false, message: '', variant: 'info', undo: null });
   const [undoData, setUndoData] = useState(null);
   const [undoTimeout, setUndoTimeout] = useState(null);
   const [modalPostIndex, setModalPostIndex] = useState(null);
-  const [page, setPage] = useState(1);
-  const [pageLoading, setPageLoading] = useState(false);
   const [loadedCount, setLoadedCount] = useState(10);
   const [infiniteLoading, setInfiniteLoading] = useState(false);
   const listEndRef = useRef(null);
   const [focusedIndex, setFocusedIndex] = useState(0);
+  const [status, setStatus] = useState('pending');
+
+  const filteredPosts = posts.filter(post => post.status === status);
 
   useEffect(() => {
     setLoadedCount(10);
   }, [status]);
 
-  const handleView = (post) => {
+  const handleView = useCallback((post) => {
     const idx = filteredPosts.findIndex(p => p.id === post.id);
     setModalPostIndex(idx);
-  };
+  }, [filteredPosts]);
 
   const handleCloseModal = () => {
     setModalPostIndex(null);
@@ -127,7 +124,6 @@ const PostList = () => {
     return acc;
   }, { pending: 0, approved: 0, rejected: 0 });
 
-  const filteredPosts = posts.filter(post => post.status === status);
   const allTabIds = filteredPosts.map(p => p.id);
   const allSelected = allTabIds.length > 0 && allTabIds.every(id => selected.includes(id));
 
@@ -156,15 +152,14 @@ const PostList = () => {
     return () => observer.disconnect();
   }, [handleLoadMore, loadedCount, filteredPosts.length]);
 
-  // Single post action handler (for undo)
-  const handleAction = (message, variant = 'info', post) => {
+  const handleAction = useCallback((message, variant = 'info', post) => {
     setSnackbar({ open: true, message, variant });
     if (post) {
       setUndoData({ posts: [post], prev: [post.status], type: variant });
       if (undoTimeout) clearTimeout(undoTimeout);
       setUndoTimeout(setTimeout(() => setUndoData(null), 3500));
     }
-  };
+  }, [undoTimeout]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -203,7 +198,7 @@ const PostList = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [paginatedPosts, focusedIndex, modalPostIndex, dispatch]);
+  }, [paginatedPosts, focusedIndex, modalPostIndex, dispatch, handleAction, handleView]);
 
   return (
     <div className="max-w-4xl mx-auto p-4">
