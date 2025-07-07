@@ -14,7 +14,7 @@ const StatusTabs = ({ current, counts, onChange }) => {
       setScrolled(window.scrollY > 60);
     };
     window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll); 
   }, []);
 
   return (
